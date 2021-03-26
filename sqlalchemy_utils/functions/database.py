@@ -429,7 +429,14 @@ def _set_url_database(url: sa.engine.url.URL, database):
 
     """
     if hasattr(url, 'set'):  # SQLAlchemy >1.4
-        return url.set(database=database)
+        return sa.engine.URL.create(
+            drivername=url.drivername,
+            username=url.username,
+            password=url.password,
+            host=url.host,
+            database=database,
+            query=url.query
+        )
     # SQLAlchemy <=1.3; mutate in place
     url.database = database
     return url
