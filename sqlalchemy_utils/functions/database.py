@@ -422,21 +422,17 @@ def is_auto_assigned_date_column(column):
 
 
 def _set_url_database(url: sa.engine.url.URL, database):
-    if hasattr(sa.engine, 'URL'):
-        ret = sa.engine.URL.create(
-            drivername=url.drivername,
-            username=url.username,
-            password=url.password,
-            host=url.host,
-            port=url.port,
-            database=database,
-            query=url.query
-        )
-    else:  # SQLAlchemy <1.4
-        url.database = database
-        ret = url
-    assert ret.database == database, ret
-    return ret
+    """Set the database of an engine URL.
+    
+    :param url: A SQLAlchemy engine URL.
+    :param database: New database to set.
+    
+    """
+    if hasattr(url, 'set'):  # SQLAlchemy >1.4
+        return url.set(database=database)
+    # SQLAlchemy <=1.3; mutate in place
+    url.database = database
+    return url
 
 
 def _get_scalar_result(engine, sql):
@@ -542,7 +538,7 @@ def create_database(url, encoding='utf8', template=None):
     dialect_name = url.get_dialect().name
     dialect_driver = url.get_dialect().driver
 
-    if dialect_name == 'postgres':
+    if dialect_name == 'postgres' or dialect_name == 'postgresql':
         url = _set_url_database(url, database="postgres")
     elif dialect_name == 'mssql':
         url = _set_url_database(url, database="master")
@@ -610,7 +606,7 @@ def drop_database(url):
     dialect_name = url.get_dialect().name
     dialect_driver = url.get_dialect().driver
 
-    if dialect_name == 'postgres':
+    if dialect_name == 'postgres' or dialect_name == 'postgresql':
         url = _set_url_database(url, database="postgres")
     elif dialect_name == 'mssql':
         url = _set_url_database(url, database="master")
