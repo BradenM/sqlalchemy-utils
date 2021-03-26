@@ -423,10 +423,10 @@ def is_auto_assigned_date_column(column):
 
 def _set_url_database(url: sa.engine.url.URL, database):
     """Set the database of an engine URL.
-    
+
     :param url: A SQLAlchemy engine URL.
     :param database: New database to set.
-    
+
     """
     if hasattr(url, 'set'):  # SQLAlchemy >1.4
         return url.set(database=database)
