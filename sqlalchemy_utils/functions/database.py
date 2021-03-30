@@ -428,7 +428,7 @@ def _set_url_database(url: sa.engine.url.URL, database):
     :param database: New database to set.
 
     """
-    if hasattr(url, 'set'):  # SQLAlchemy >1.4
+    if hasattr(sa.engine, 'URL'):
         ret = sa.engine.URL.create(
             drivername=url.drivername,
             username=url.username,
@@ -438,8 +438,7 @@ def _set_url_database(url: sa.engine.url.URL, database):
             database=database,
             query=url.query
         )
-    else:
-        # SQLAlchemy <=1.3; mutate in place
+    else:  # SQLAlchemy <1.4
         url.database = database
         ret = url
     assert ret.database == database, ret
